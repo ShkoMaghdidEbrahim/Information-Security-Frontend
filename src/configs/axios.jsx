@@ -1,28 +1,10 @@
 import axios from 'axios';
 import {useEffect, useRef, useState} from 'react';
-import {API_URL, localStorageName} from './constants';
+import {API_URL} from './constants';
 import {notification} from 'antd';
 
-const auth = localStorage.getItem(localStorageName);
-
-if (!auth && window.location.pathname !== '/login') {
-    window.location.href = '/login';
-}
-
-const authObject = JSON.parse(auth);
 export const axiosInstance = axios.create({
     baseURL: API_URL,
-    headers: {
-        authorization: authObject ? `Bearer ${authObject.token}` : ''
-    }
-});
-
-axiosInstance.interceptors.response.use((response) => response, (error) => {
-    if (error.response?.status === 401 && window.location.pathname !== '/login') {
-        localStorage.removeItem(localStorageName);
-        window.location.href = '/login';
-    }
-    return Promise.reject(error);
 });
 
 export const useAxiosGet = (url, params = {autoRun: false}, headers = {}) => {
