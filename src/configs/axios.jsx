@@ -93,7 +93,7 @@ export const useAxiosDelete = (url, params = {autoRun: false}, headers = {}) => 
     };
 };
 
-export const useAxiosPost = (url, body, params = {autoRun: false}, headers = {}) => {
+export const useAxiosPost = (url, body, params = {autoRun: false}, headers = {'Content-Type': 'application/json'}) => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -102,7 +102,7 @@ export const useAxiosPost = (url, body, params = {autoRun: false}, headers = {})
             setLoading(true);
             const response = await axiosInstance.post(url, bodyParams, {
                 params: queryParams,
-                headersParams
+                headers: headersParams
             });
             setData(response.data);
             return response.data;

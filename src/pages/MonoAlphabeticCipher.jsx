@@ -107,7 +107,7 @@ function MonoAlphabeticCipher() {
                                     >
                                         <InputNumber
                                             min = {1}
-                                            max = {25}
+                                            max = {255}
                                             changeOnWheel = {true}
                                             size = {'large'}
                                             placeholder = {'Enter the shift value'}
@@ -207,7 +207,7 @@ function MonoAlphabeticCipher() {
                                     >
                                         <InputNumber
                                             min = {1}
-                                            max = {25}
+                                            max = {255}
                                             changeOnWheel = {true}
                                             size = {'large'}
                                             placeholder = {'Enter the shift value'}
