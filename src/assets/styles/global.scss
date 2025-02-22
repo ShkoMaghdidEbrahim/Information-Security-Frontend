@@ -18,6 +18,11 @@
   src: url(../fonts/ar-kr/NotoSansArabic-Bold.ttf);
 }
 
+@font-face {
+  font-family: 'Fira Code';
+  src: url(../fonts/en/FiraCode-Regular.ttf);
+}
+
 //remove scrollbars
 ::-webkit-scrollbar {
   display: none;
@@ -27,6 +32,7 @@
   --main-color: #dd283b;
   --regular: 'regular-en';
   --bold: 'bold-en';
+  --code: 'Fira Code';
   overflow-x: hidden;
 
   :lang(ar),

@@ -3,6 +3,8 @@ import {
     Card, Col, Form, Input, InputNumber, Row, Table,
 } from 'antd';
 import {useAxiosPost} from "../configs/axios.jsx";
+import {useState} from "react";
+import CodeModal from "../components/CodeModal.jsx";
 
 function CaesarCipher() {
     
@@ -41,6 +43,8 @@ function CaesarCipher() {
         });
     }
     
+    const [codeModalType, setCodeModalType] = useState('');
+    
     return (<>
         <Card
             style = {{
@@ -62,7 +66,21 @@ function CaesarCipher() {
             >
                 <Col span = {24}>
                     <Card
-                        title = {'Encryption'}
+                        title = {<Row>
+                            <Col span = {20}>
+                                Encryption
+                            </Col>
+                            <Col span = {4}>
+                                <Button
+                                    block = {true}
+                                    onClick = {() => setCodeModalType('caesarEncrypt')}
+                                    size = {"small"}
+                                    type = {'primary'}
+                                >
+                                    View Code
+                                </Button>
+                            </Col>
+                        </Row>}
                         style = {{
                             width: '100%',
                             minHeight: '44.5vh',
@@ -162,7 +180,21 @@ function CaesarCipher() {
                 <Col
                     span = {24}>
                     <Card
-                        title = {'Decryption'}
+                        title = {<Row>
+                            <Col span = {20}>
+                                Decryption
+                            </Col>
+                            <Col span = {4}>
+                                <Button
+                                    block = {true}
+                                    size = {"small"}
+                                    onClick = {() => setCodeModalType('caesarDecrypt')}
+                                    type = {'primary'}
+                                >
+                                    View Code
+                                </Button>
+                            </Col>
+                        </Row>}
                         style = {{
                             width: '100%',
                             minHeight: '44.5vh',
@@ -262,7 +294,21 @@ function CaesarCipher() {
                 <Col
                     span = {24}>
                     <Card
-                        title = {'Attack'}
+                        title = {<Row>
+                            <Col span = {20}>
+                                Attack
+                            </Col>
+                            <Col span = {4}>
+                                <Button
+                                    block = {true}
+                                    onClick = {() => setCodeModalType('caesarAttack')}
+                                    size = {"small"}
+                                    type = {'primary'}
+                                >
+                                    View Code
+                                </Button>
+                            </Col>
+                        </Row>}
                         style = {{
                             width: '100%',
                             minHeight: '44.5vh',
@@ -346,7 +392,10 @@ function CaesarCipher() {
                                                 
                                             }
                                         ]}
-                                        pagination = {false}
+                                        pagination = {{
+                                            pageSize: 12,
+                                            showSizeChanger: false,
+                                        }}
                                         bordered = {true}
                                         size = {'large'}
                                     />
@@ -357,6 +406,13 @@ function CaesarCipher() {
                     </Card>
                 </Col>
             </Row>
+            {codeModalType !== '' && (
+                <CodeModal
+                    isModalVisible = {codeModalType !== ''}
+                    setIsModalVisible = {() => setCodeModalType('')}
+                    codeType = {codeModalType}
+                />
+            )}
         </Card>
     </>);
 }

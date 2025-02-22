@@ -3,8 +3,12 @@ import {
     Card, Col, Form, Input, InputNumber, Row,
 } from 'antd';
 import {useAxiosPost} from "../configs/axios.jsx";
+import {useState} from "react";
+import CodeModal from "../components/CodeModal.jsx";
 
 function MonoAlphabeticCipher() {
+    
+    const [codeModalType, setCodeModalType] = useState('');
     
     const {
         request: encryptRequest,
@@ -19,15 +23,59 @@ function MonoAlphabeticCipher() {
     } = useAxiosPost('/weekOne/monoAlphabeticDecrypt', {});
     
     const onFinishEncrypt = (values) => {
-        encryptRequest(values).then(data => {
+        const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+        const key = values.key.toLowerCase().split('');
+        const shift = {};
+        
+        key.forEach((char, index) => {
+            shift[alphabet[index]] = char;
+        });
+        
+        const formattedPayload = {
+            plaintext: values.plaintext,
+            shift: shift
+        };
+        encryptRequest(formattedPayload).then(data => {
             console.log(data);
         });
     }
     const onFinishDecrypt = (values) => {
-        decryptRequest(values).then(data => {
+        const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+        const key = values.key.toLowerCase().split('');
+        const shift = {};
+        
+        key.forEach((char, index) => {
+            shift[char] = alphabet[index];
+        });
+        
+        const formattedPayload = {
+            ciphertext: values.ciphertext,
+            shift: shift
+        };
+        decryptRequest(formattedPayload).then(data => {
             console.log(data);
         });
-    }
+    };
+    
+    const validateKey = (_, value) => {
+        const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+        const keySet = new Set(value.toLowerCase().split(''));
+        
+        if (value.length !== 26 || keySet.size !== 26 || !alphabet.split('').every(char => keySet.has(char))) {
+            return Promise.reject(new Error('The key must contain each letter exactly once without duplications.'));
+        }
+        
+        return Promise.resolve();
+    };
+    
+    const generateRandomKey = () => {
+        const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+        const shuffled = alphabet.split('').sort(() => 0.5 - Math.random()).join('');
+        encryptForm.setFieldsValue({key: shuffled.toUpperCase()});
+    };
+    
+    const [decryptForm] = Form.useForm();
+    const [encryptForm] = Form.useForm();
     
     return (<>
         <Card
@@ -50,13 +98,28 @@ function MonoAlphabeticCipher() {
             >
                 <Col span = {24}>
                     <Card
-                        title = {'Encryption'}
+                        title = {<Row>
+                            <Col span = {20}>
+                                Encryption
+                            </Col>
+                            <Col span = {4}>
+                                <Button
+                                    block = {true}
+                                    onClick = {() => setCodeModalType('monoAlphabeticEncrypt')}
+                                    size = {'small'}
+                                    type = {'primary'}
+                                >
+                                    View Code
+                                </Button>
+                            </Col>
+                        </Row>}
                         style = {{
                             width: '100%',
                             minHeight: '44.5vh',
                         }}
                     >
                         <Form
+                            form = {encryptForm}
                             onFinish = {onFinishEncrypt}
                             layout = {'horizontal'}
                             style = {{
@@ -92,7 +155,7 @@ function MonoAlphabeticCipher() {
                                         />
                                     </Form.Item>
                                 </Col>
-                                <Col span = {12}>
+                                <Col span = {16}>
                                     <Form.Item
                                         style = {{
                                             margin: 0
@@ -100,24 +163,39 @@ function MonoAlphabeticCipher() {
                                         rules = {[
                                             {
                                                 required: true,
-                                                message: 'Please enter the shift value',
+                                                message: 'Please enter the key value',
                                             },
+                                            {
+                                                validator: validateKey,
+                                            }
                                         ]}
-                                        name = 'shift'
+                                        name = 'key'
                                     >
-                                        <InputNumber
-                                            min = {1}
-                                            max = {255}
-                                            changeOnWheel = {true}
+                                        <Input
+                                            onChange = {(e) => {
+                                                const value = e.target.value.toUpperCase();
+                                                encryptForm.setFieldsValue({key: value});
+                                            }}
                                             size = {'large'}
-                                            placeholder = {'Enter the shift value'}
+                                            placeholder = {'Enter the key value'}
                                             style = {{
                                                 width: '100%',
                                             }}
                                         />
                                     </Form.Item>
                                 </Col>
-                                <Col span = {12}>
+                                <Col span = {4}>
+                                    <Button
+                                        onClick = {generateRandomKey}
+                                        loading = {decryptLoading}
+                                        size = {"large"}
+                                        type = {'primary'}
+                                        block = {true}
+                                    >
+                                        Random Key
+                                    </Button>
+                                </Col>
+                                <Col span = {4}>
                                     <Button
                                         loading = {encryptLoading}
                                         size = {"large"}
@@ -150,13 +228,28 @@ function MonoAlphabeticCipher() {
                 <Col
                     span = {24}>
                     <Card
-                        title = {'Decryption'}
+                        title = {<Row>
+                            <Col span = {20}>
+                                Decryption
+                            </Col>
+                            <Col span = {4}>
+                                <Button
+                                    block = {true}
+                                    onClick = {() => setCodeModalType('monoAlphabeticDecrypt')}
+                                    size = {'small'}
+                                    type = {'primary'}
+                                >
+                                    View Code
+                                </Button>
+                            </Col>
+                        </Row>}
                         style = {{
                             width: '100%',
                             minHeight: '44.5vh',
                         }}
                     >
                         <Form
+                            form = {decryptForm}
                             onFinish = {onFinishDecrypt}
                             layout = {'horizontal'}
                             style = {{
@@ -192,7 +285,7 @@ function MonoAlphabeticCipher() {
                                         />
                                     </Form.Item>
                                 </Col>
-                                <Col span = {12}>
+                                <Col span = {18}>
                                     <Form.Item
                                         style = {{
                                             margin: 0
@@ -200,24 +293,29 @@ function MonoAlphabeticCipher() {
                                         rules = {[
                                             {
                                                 required: true,
-                                                message: 'Please enter the shift value',
+                                                message: 'Please enter the key value',
+                                            },
+                                            {
+                                                validator: validateKey,
                                             },
                                         ]}
-                                        name = 'shift'
+                                        name = 'key'
                                     >
-                                        <InputNumber
-                                            min = {1}
-                                            max = {255}
-                                            changeOnWheel = {true}
+                                        <Input
+                                            onChange = {(e) => {
+                                                const value = e.target.value.toUpperCase();
+                                                decryptForm.setFieldsValue({key: value});
+                                            }}
                                             size = {'large'}
-                                            placeholder = {'Enter the shift value'}
+                                            placeholder = {'Enter the key value'}
                                             style = {{
                                                 width: '100%',
                                             }}
                                         />
                                     </Form.Item>
                                 </Col>
-                                <Col span = {12}>
+                                
+                                <Col span = {6}>
                                     <Button
                                         loading = {decryptLoading}
                                         size = {"large"}
@@ -247,6 +345,13 @@ function MonoAlphabeticCipher() {
                     </Card>
                 </Col>
             </Row>
+            {codeModalType !== '' && (
+                <CodeModal
+                    isModalVisible = {codeModalType !== ''}
+                    setIsModalVisible = {() => setCodeModalType('')}
+                    codeType = {codeModalType}
+                />
+            )}
         </Card>
     </>);
 }
