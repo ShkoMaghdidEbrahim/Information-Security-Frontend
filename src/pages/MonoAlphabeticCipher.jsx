@@ -23,17 +23,9 @@ function MonoAlphabeticCipher() {
     } = useAxiosPost('/weekOne/monoAlphabeticDecrypt', {});
     
     const onFinishEncrypt = (values) => {
-        const alphabet = 'abcdefghijklmnopqrstuvwxyz';
-        const key = values.key.toLowerCase().split('');
-        const shift = {};
-        
-        key.forEach((char, index) => {
-            shift[alphabet[index]] = char;
-        });
         
         const formattedPayload = {
             plaintext: values.plaintext,
-            shift: shift
         };
         encryptRequest(formattedPayload).then(data => {
             console.log(data);
@@ -66,12 +58,6 @@ function MonoAlphabeticCipher() {
         }
         
         return Promise.resolve();
-    };
-    
-    const generateRandomKey = () => {
-        const alphabet = 'abcdefghijklmnopqrstuvwxyz';
-        const shuffled = alphabet.split('').sort(() => 0.5 - Math.random()).join('');
-        encryptForm.setFieldsValue({key: shuffled.toUpperCase()});
     };
     
     const [decryptForm] = Form.useForm();
@@ -155,47 +141,7 @@ function MonoAlphabeticCipher() {
                                         />
                                     </Form.Item>
                                 </Col>
-                                <Col span = {16}>
-                                    <Form.Item
-                                        style = {{
-                                            margin: 0
-                                        }}
-                                        rules = {[
-                                            {
-                                                required: true,
-                                                message: 'Please enter the key value',
-                                            },
-                                            {
-                                                validator: validateKey,
-                                            }
-                                        ]}
-                                        name = 'key'
-                                    >
-                                        <Input
-                                            onChange = {(e) => {
-                                                const value = e.target.value.toUpperCase();
-                                                encryptForm.setFieldsValue({key: value});
-                                            }}
-                                            size = {'large'}
-                                            placeholder = {'Enter the key value'}
-                                            style = {{
-                                                width: '100%',
-                                            }}
-                                        />
-                                    </Form.Item>
-                                </Col>
-                                <Col span = {4}>
-                                    <Button
-                                        onClick = {generateRandomKey}
-                                        loading = {decryptLoading}
-                                        size = {"large"}
-                                        type = {'primary'}
-                                        block = {true}
-                                    >
-                                        Random Key
-                                    </Button>
-                                </Col>
-                                <Col span = {4}>
+                                <Col span = {24}>
                                     <Button
                                         loading = {encryptLoading}
                                         size = {"large"}
@@ -215,6 +161,21 @@ function MonoAlphabeticCipher() {
                                             placeholder = {'Encrypted Text'}
                                             autoSize = {true}
                                             style = {{
+                                                width: '100%',
+                                            }}
+                                        />
+                                    </Col>
+                                )}
+                                {encryptData?.key && (
+                                    <Col span = {24}>
+                                        <Input
+                                            value = {encryptData.key}
+                                            rows = {6}
+                                            size = {'large'}
+                                            placeholder = {'Encrypted Text'}
+                                            autoSize = {true}
+                                            style = {{
+                                                textTransform: 'uppercase',
                                                 width: '100%',
                                             }}
                                         />
