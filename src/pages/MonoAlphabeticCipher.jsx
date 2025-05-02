@@ -1,10 +1,11 @@
 import {
     Button,
-    Card, Col, Form, Input, InputNumber, Row,
+    Card, Col, Form, Input, Row,
 } from 'antd';
 import {useAxiosPost} from "../configs/axios.jsx";
 import {useState} from "react";
 import CodeModal from "../components/CodeModal.jsx";
+import Buffer from 'buffer';
 
 function MonoAlphabeticCipher() {
     
@@ -23,7 +24,6 @@ function MonoAlphabeticCipher() {
     } = useAxiosPost('/weekOne/monoAlphabeticDecrypt', {});
     
     const onFinishEncrypt = (values) => {
-        
         const formattedPayload = {
             plaintext: values.plaintext,
         };
@@ -31,33 +31,16 @@ function MonoAlphabeticCipher() {
             console.log(data);
         });
     }
+    
     const onFinishDecrypt = (values) => {
-        const alphabet = 'abcdefghijklmnopqrstuvwxyz';
-        const key = values.key.toLowerCase().split('');
-        const shift = {};
-        
-        key.forEach((char, index) => {
-            shift[char] = alphabet[index];
-        });
-        
         const formattedPayload = {
             ciphertext: values.ciphertext,
-            shift: shift
+            key: values.key,
         };
+        
         decryptRequest(formattedPayload).then(data => {
             console.log(data);
         });
-    };
-    
-    const validateKey = (_, value) => {
-        const alphabet = 'abcdefghijklmnopqrstuvwxyz';
-        const keySet = new Set(value.toLowerCase().split(''));
-        
-        if (value.length !== 26 || keySet.size !== 26 || !alphabet.split('').every(char => keySet.has(char))) {
-            return Promise.reject(new Error('The key must contain each letter exactly once without duplications.'));
-        }
-        
-        return Promise.resolve();
     };
     
     const [decryptForm] = Form.useForm();
@@ -175,7 +158,6 @@ function MonoAlphabeticCipher() {
                                             placeholder = {'Encrypted Text'}
                                             autoSize = {true}
                                             style = {{
-                                                textTransform: 'uppercase',
                                                 width: '100%',
                                             }}
                                         />
@@ -256,16 +238,12 @@ function MonoAlphabeticCipher() {
                                                 required: true,
                                                 message: 'Please enter the key value',
                                             },
-                                            {
-                                                validator: validateKey,
-                                            },
                                         ]}
                                         name = 'key'
                                     >
                                         <Input
                                             onChange = {(e) => {
-                                                const value = e.target.value.toUpperCase();
-                                                decryptForm.setFieldsValue({key: value});
+                                                decryptForm.setFieldsValue({key: e.target.value});
                                             }}
                                             size = {'large'}
                                             placeholder = {'Enter the key value'}

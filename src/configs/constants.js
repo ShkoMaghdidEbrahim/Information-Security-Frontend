@@ -1,74 +1,57 @@
-export const API_URL = `http://127.0.0.1:5050`;
+export const API_URL = `http://127.0.0.1:8000`;
 
 export const codes = {
-    monoAlphabeticDecrypt: `@week_one_bp.route('/monoAlphabeticDecrypt', methods=['POST', 'GET'])
-def mono_alphabetic_decrypt():
-    data = request.get_json()
-    ciphertext = data.get('ciphertext', '')
-    shift = data.get('shift', {})
-    print(shift)
-    print(ciphertext)
+    monoAlphabeticDecrypt: `@router.post("/monoAlphabeticDecrypt")
+def mono_alphabetic_decrypt(request: MonoAlphabeticDecryptRequest):
+    ascii_chars = [chr(i) for i in range(256)]
+    decoded_key_str = base64.b64decode(request.key).decode()
+    shift_map = {}
+    for index, char in enumerate(decoded_key_str):
+        shift_map[char] = ascii_chars[index]
+
     plaintext = ""
-    for char in ciphertext:
-        if char.lower() in shift:
-            plaintext_char = shift[char.lower()]
-            if char.isupper():
-                plaintext += plaintext_char.upper()
-            else:
-                plaintext += plaintext_char
+    for char in request.ciphertext:
+        if char in shift_map:
+            plaintext += shift_map[char]
         else:
             plaintext += char
-    return jsonify({'decrypted_text': plaintext})`,
-    monoAlphabeticEncrypt: `@week_one_bp.route('/monoAlphabeticEncrypt', methods=['POST', 'GET'])
-def mono_alphabetic_encrypt():
-    data = request.get_json()
-    plaintext = data.get('plaintext', '')
-    shift = data.get('shift', {})
-    ciphertext = ""
-    for char in plaintext:
-        if char.lower() in shift:
-            cipher_char = shift[char.lower()]
-            if char.isupper():
-                ciphertext += cipher_char.upper()
-            else:
-                ciphertext += cipher_char
-        else:
-            ciphertext += char
-    return jsonify({'encrypted_text': ciphertext})`,
-    caesarDecrypt: `@week_one_bp.route('/caesarDecrypt', methods=['POST', 'GET'])
-def caesar_decrypt():
-    data = request.get_json()
-    ciphertext = data.get('ciphertext', '')
-    shift = data.get('shift', 0)
+
+    return {"decrypted_text": plaintext}`,
+    monoAlphabeticEncrypt: `@router.post("/monoAlphabeticEncrypt")
+def mono_alphabetic_encrypt(request: MonoAlphabeticEncryptRequest):
+    ascii_chars = [chr(i) for i in range(256)]
+    shuffled_chars = ascii_chars[:]
+    random.shuffle(shuffled_chars)
+    key_str = ''.join(shuffled_chars)
+
+    encoded_key_str = base64.b64encode(key_str.encode()).decode()
+
+    key = dict(zip(ascii_chars, shuffled_chars))
+    ciphertext = ''.join(key.get(char, char) for char in request.plaintext)
+
+    return {"encrypted_text": ciphertext, "key": encoded_key_str}`,
+    caesarDecrypt: `@router.post("/caesarDecrypt")
+def caesar_decrypt(request: CaesarDecryptRequest):
     plaintext = ""
-    for char in ciphertext:
-        shift_amount = shift % 256
+    shift_amount = request.shift % 256
+    for char in request.ciphertext:
         new_char = chr(((ord(char) - shift_amount) % 256))
         plaintext += new_char
-    return jsonify({'decrypted_text': plaintext})`,
-    caesarEncrypt: `@week_one_bp.route('/caesarEncrypt', methods=['POST', 'GET'])
-def caesar_encrypt():
-    data = request.get_json()
-    plaintext = data.get('plaintext', '')
-    shift = data.get('shift', 0)
+    return {"decrypted_text": plaintext}`,
+    caesarEncrypt: `@router.post("/caesarEncrypt")
+def caesar_encrypt(request: CaesarEncryptRequest):
     encrypted_text = ""
-    for char in plaintext:
-        encrypted_text += chr((ord(char) + shift) % 256)
-    return jsonify({'encrypted_text': encrypted_text})`,
-    caesarAttack: `@week_one_bp.route('/caesarAttack', methods=['POST', 'GET'])
-def caesar_attack():
-    data = request.get_json()
-    ciphertext = data.get('ciphertext', '')
+    for char in request.plaintext:
+        encrypted_text += chr((ord(char) + request.shift) % 256)
+    return {"encrypted_text": encrypted_text}`,
+    caesarAttack: `@router.post("/caesarAttack")
+def caesar_attack(request: CaesarAttackRequest):
     results = []
-    print(ciphertext)
     for shift in range(256):
-        decrypted = ''
-        for char in ciphertext:
+        decrypted = ""
+        for char in request.ciphertext:
             decrypted += chr((ord(char) - shift) % 256)
-        results.append({
-            'shift': shift,
-            'decrypted_text': decrypted
-        })
-    return jsonify(results)`
+        results.append({"shift": shift, "decrypted_text": decrypted})
+    return results`
 }
 
