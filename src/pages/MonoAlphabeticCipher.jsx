@@ -150,18 +150,32 @@ function MonoAlphabeticCipher() {
                                     </Col>
                                 )}
                                 {encryptData?.key && (
-                                    <Col span = {24}>
-                                        <Input
-                                            value = {encryptData.key}
-                                            rows = {6}
-                                            size = {'large'}
-                                            placeholder = {'Encrypted Text'}
-                                            autoSize = {true}
-                                            style = {{
-                                                width: '100%',
-                                            }}
-                                        />
-                                    </Col>
+                                    <>
+                                        <Col span = {20}>
+                                            <Input
+                                                value = {encryptData.key}
+                                                rows = {6}
+                                                size = {'large'}
+                                                placeholder = {'Encrypted Text'}
+                                                autoSize = {true}
+                                                style = {{
+                                                    width: '100%',
+                                                }}
+                                            />
+                                        </Col>
+                                        <Col span = {4}>
+                                            <Button
+                                                block
+                                                size = {"large"}
+                                                type = {'primary'}
+                                                onClick = {() => {
+                                                    navigator.clipboard.writeText(encryptData.key).toString('utf-8');
+                                                }}
+                                            >
+                                                Copy Key
+                                            </Button>
+                                        </Col>
+                                    </>
                                 )}
                             </Row>
                         </Form>
