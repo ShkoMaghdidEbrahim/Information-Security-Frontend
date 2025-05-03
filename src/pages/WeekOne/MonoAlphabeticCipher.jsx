@@ -2,10 +2,9 @@ import {
     Button,
     Card, Col, Form, Input, Row,
 } from 'antd';
-import {useAxiosPost} from "../configs/axios.jsx";
+import {useAxiosPost} from "../../configs/axios.jsx";
 import {useState} from "react";
-import CodeModal from "../components/CodeModal.jsx";
-import Buffer from 'buffer';
+import CodeModal from "../../components/CodeModal.jsx";
 
 function MonoAlphabeticCipher() {
     

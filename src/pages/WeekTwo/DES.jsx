@@ -1,51 +1,46 @@
-import {
-    Button,
-    Card, Col, Form, Input, InputNumber, Row, Table,
-} from 'antd';
-import {useAxiosPost} from "../configs/axios.jsx";
+import {Button, Card, Col, Form, Input, Row} from "antd";
+import {useAxiosPost} from "../../configs/axios.jsx";
+import CodeModal from "../../components/CodeModal.jsx";
 import {useState} from "react";
-import CodeModal from "../components/CodeModal.jsx";
 
-function CaesarCipher() {
+const DES = () => {
+    const [codeModalType, setCodeModalType] = useState('');
+    const [decryptForm] = Form.useForm();
+    const [encryptForm] = Form.useForm();
     
     const {
         request: encryptRequest,
         data: encryptData,
         loading: encryptLoading,
-    } = useAxiosPost('/weekOne/caesarEncrypt', {});
+    } = useAxiosPost('/weekTwo/DESEncrypt', {});
     
     const {
         request: decryptRequest,
         data: decryptData,
         loading: decryptLoading,
-    } = useAxiosPost('/weekOne/caesarDecrypt', {});
-    
-    const {
-        request: attackRequest,
-        data: attackData,
-        loading: attackLoading,
-    } = useAxiosPost('/weekOne/caesarAttack', {});
+    } = useAxiosPost('/weekTwo/DESDecrypt', {});
     
     const onFinishEncrypt = (values) => {
-        encryptRequest(values).then(data => {
+        const formattedPayload = {
+            plaintext: values.plaintext,
+        };
+        encryptRequest(formattedPayload).then(data => {
             console.log(data);
         });
     }
+    
     const onFinishDecrypt = (values) => {
-        decryptRequest(values).then(data => {
+        const formattedPayload = {
+            ciphertext: values.ciphertext,
+            key: values.key,
+        };
+        
+        decryptRequest(formattedPayload).then(data => {
             console.log(data);
         });
-    }
+    };
     
-    const onFinishAttack = (values) => {
-        attackRequest(values).then(data => {
-            console.log(data);
-        });
-    }
-    
-    const [codeModalType, setCodeModalType] = useState('');
-    
-    return (<>
+    return (
         <Card
             style = {{
                 width: '100%',
@@ -73,8 +68,8 @@ function CaesarCipher() {
                             <Col span = {4}>
                                 <Button
                                     block = {true}
-                                    onClick = {() => setCodeModalType('caesarEncrypt')}
-                                    size = {"small"}
+                                    onClick = {() => setCodeModalType('DESEncrypt')}
+                                    size = {'small'}
                                     type = {'primary'}
                                 >
                                     View Code
@@ -87,6 +82,7 @@ function CaesarCipher() {
                         }}
                     >
                         <Form
+                            form = {encryptForm}
                             onFinish = {onFinishEncrypt}
                             layout = {'horizontal'}
                             style = {{
@@ -122,32 +118,7 @@ function CaesarCipher() {
                                         />
                                     </Form.Item>
                                 </Col>
-                                <Col span = {12}>
-                                    <Form.Item
-                                        style = {{
-                                            margin: 0
-                                        }}
-                                        rules = {[
-                                            {
-                                                required: true,
-                                                message: 'Please enter the shift value',
-                                            },
-                                        ]}
-                                        name = 'shift'
-                                    >
-                                        <InputNumber
-                                            min = {1}
-                                            max = {25}
-                                            changeOnWheel = {true}
-                                            size = {'large'}
-                                            placeholder = {'Enter the shift value'}
-                                            style = {{
-                                                width: '100%',
-                                            }}
-                                        />
-                                    </Form.Item>
-                                </Col>
-                                <Col span = {12}>
+                                <Col span = {24}>
                                     <Button
                                         loading = {encryptLoading}
                                         size = {"large"}
@@ -158,10 +129,10 @@ function CaesarCipher() {
                                         Encrypt
                                     </Button>
                                 </Col>
-                                {encryptData?.encrypted_text && (
+                                {encryptData?.ciphertext && (
                                     <Col span = {24}>
                                         <Input.TextArea
-                                            value = {encryptData.encrypted_text}
+                                            value = {encryptData.ciphertext}
                                             rows = {6}
                                             size = {'large'}
                                             placeholder = {'Encrypted Text'}
@@ -171,6 +142,34 @@ function CaesarCipher() {
                                             }}
                                         />
                                     </Col>
+                                )}
+                                {encryptData?.key && (
+                                    <>
+                                        <Col span = {20}>
+                                            <Input
+                                                value = {encryptData.key}
+                                                rows = {6}
+                                                size = {'large'}
+                                                placeholder = {'Encrypted Text'}
+                                                autoSize = {true}
+                                                style = {{
+                                                    width: '100%',
+                                                }}
+                                            />
+                                        </Col>
+                                        <Col span = {4}>
+                                            <Button
+                                                block
+                                                size = {"large"}
+                                                type = {'primary'}
+                                                onClick = {() => {
+                                                    navigator.clipboard.writeText(encryptData.key).toString('utf-8');
+                                                }}
+                                            >
+                                                Copy Key
+                                            </Button>
+                                        </Col>
+                                    </>
                                 )}
                             </Row>
                         </Form>
@@ -187,8 +186,8 @@ function CaesarCipher() {
                             <Col span = {4}>
                                 <Button
                                     block = {true}
-                                    size = {"small"}
-                                    onClick = {() => setCodeModalType('caesarDecrypt')}
+                                    onClick = {() => setCodeModalType('DESDecrypt')}
+                                    size = {'small'}
                                     type = {'primary'}
                                 >
                                     View Code
@@ -201,6 +200,7 @@ function CaesarCipher() {
                         }}
                     >
                         <Form
+                            form = {decryptForm}
                             onFinish = {onFinishDecrypt}
                             layout = {'horizontal'}
                             style = {{
@@ -236,7 +236,7 @@ function CaesarCipher() {
                                         />
                                     </Form.Item>
                                 </Col>
-                                <Col span = {12}>
+                                <Col span = {18}>
                                     <Form.Item
                                         style = {{
                                             margin: 0
@@ -244,24 +244,25 @@ function CaesarCipher() {
                                         rules = {[
                                             {
                                                 required: true,
-                                                message: 'Please enter the shift value',
+                                                message: 'Please enter the key value',
                                             },
                                         ]}
-                                        name = 'shift'
+                                        name = 'key'
                                     >
-                                        <InputNumber
-                                            min = {0}
-                                            max = {25}
-                                            changeOnWheel = {true}
+                                        <Input
+                                            onChange = {(e) => {
+                                                decryptForm.setFieldsValue({key: e.target.value});
+                                            }}
                                             size = {'large'}
-                                            placeholder = {'Enter the shift value'}
+                                            placeholder = {'Enter the key value'}
                                             style = {{
                                                 width: '100%',
                                             }}
                                         />
                                     </Form.Item>
                                 </Col>
-                                <Col span = {12}>
+                                
+                                <Col span = {6}>
                                     <Button
                                         loading = {decryptLoading}
                                         size = {"large"}
@@ -272,10 +273,10 @@ function CaesarCipher() {
                                         Decrypt
                                     </Button>
                                 </Col>
-                                {decryptData?.decrypted_text && (
+                                {decryptData?.plaintext && (
                                     <Col span = {24}>
                                         <Input.TextArea
-                                            value = {decryptData.decrypted_text}
+                                            value = {decryptData.plaintext}
                                             rows = {6}
                                             size = {'large'}
                                             placeholder = {'Encrypted Text'}
@@ -290,122 +291,8 @@ function CaesarCipher() {
                         </Form>
                     </Card>
                 </Col>
-                
-                <Col
-                    span = {24}>
-                    <Card
-                        title = {<Row>
-                            <Col span = {20}>
-                                Attack
-                            </Col>
-                            <Col span = {4}>
-                                <Button
-                                    block = {true}
-                                    onClick = {() => setCodeModalType('caesarAttack')}
-                                    size = {"small"}
-                                    type = {'primary'}
-                                >
-                                    View Code
-                                </Button>
-                            </Col>
-                        </Row>}
-                        style = {{
-                            width: '100%',
-                            minHeight: '44.5vh',
-                        }}
-                    >
-                        <Form
-                            onFinish = {onFinishAttack}
-                            layout = {'horizontal'}
-                            style = {{
-                                width: '100%',
-                                height: '100%',
-                            }}
-                        >
-                            <Row
-                                gutter = {[
-                                    15,
-                                    15
-                                ]}>
-                                <Col span = {24}>
-                                    <Form.Item
-                                        style = {{
-                                            margin: 0
-                                        }}
-                                        rules = {[
-                                            {
-                                                required: true,
-                                                message: 'Please enter the text to decrypt',
-                                            },
-                                        ]}
-                                        name = 'ciphertext'
-                                    >
-                                        <Input.TextArea
-                                            rows = {6}
-                                            size = {'large'}
-                                            placeholder = {'Enter the text to decrypt'}
-                                            style = {{
-                                                width: '100%',
-                                            }}
-                                        />
-                                    </Form.Item>
-                                </Col>
-                                <Col span = {24}>
-                                    <Button
-                                        loading = {attackLoading}
-                                        size = {"large"}
-                                        type = {'primary'}
-                                        htmlType = {'submit'}
-                                        block = {true}
-                                    >
-                                        Attack
-                                    </Button>
-                                </Col>
-                                <Col span = {24}>
-                                    <Table
-                                        dataSource = {attackData || []}
-                                        columns = {[
-                                            {
-                                                title: 'Shift',
-                                                dataIndex: 'shift',
-                                                key: 'shift',
-                                                width: 100,
-                                                align: 'center',
-                                            },
-                                            {
-                                                title: 'Decrypted Text',
-                                                dataIndex: 'decrypted_text',
-                                                key: 'decrypted_text',
-                                                render: (text) => (
-                                                    <Input.TextArea
-                                                        bordered = {false}
-                                                        value = {text}
-                                                        rows = {6}
-                                                        size = {'large'}
-                                                        placeholder = {'Decrypted Text'}
-                                                        autoSize = {true}
-                                                        style = {{
-                                                            width: '100%',
-                                                        }}
-                                                    />
-                                                )
-                                                
-                                            }
-                                        ]}
-                                        pagination = {{
-                                            pageSize: 12,
-                                            showSizeChanger: false,
-                                        }}
-                                        bordered = {true}
-                                        size = {'large'}
-                                    />
-                                </Col>
-                            
-                            </Row>
-                        </Form>
-                    </Card>
-                </Col>
             </Row>
+            
             {codeModalType !== '' && (
                 <CodeModal
                     isModalVisible = {codeModalType !== ''}
@@ -414,7 +301,7 @@ function CaesarCipher() {
                 />
             )}
         </Card>
-    </>);
+    );
 }
 
-export default CaesarCipher;
+export default DES;
