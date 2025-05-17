@@ -1,11 +1,13 @@
 import {lazy} from 'react';
-import {BulbTwoTone, CalendarTwoTone, FundOutlined} from "@ant-design/icons";
+import {CalendarTwoTone, FundOutlined} from "@ant-design/icons";
 
 const Dashboard = lazy(() => import('./pages/Dashboard.jsx'));
 const CaesarCipher = lazy(() => import('./pages/WeekOne/CaesarCipher.jsx'));
 const MonoAlphabeticCipher = lazy(() => import('./pages/WeekOne/MonoAlphabeticCipher.jsx'));
 
 const DES = lazy(() => import('./pages/WeekTwo/DES.jsx'));
+
+const SHA512 = lazy(() => import('./pages/Final/SHA512.jsx'));
 
 const routes = [
     {
@@ -61,6 +63,25 @@ const routes = [
                 path: 'DESAlgorithm',
                 label: 'DES Encryption/Decryption',
                 component: DES,
+            },
+        ],
+    },
+    {
+        key: 4,
+        path: 'Final',
+        label: 'Final',
+        icon: <CalendarTwoTone
+            style = {{
+                fontSize: 20,
+                margin: 0
+            }}
+        />,
+        children: [
+            {
+                key: '3.1.1',
+                path: 'SHA512',
+                label: 'SHA512 Hashing',
+                component: SHA512,
             },
         ],
     },
